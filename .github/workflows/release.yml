@@ -61,7 +61,7 @@ jobs:
           AUDIT_OUTPUT: ${{ runner.temp }}/gooo-frontier-release-audit/release-audit.json
         run: ./scripts/verify-release.sh
       - name: Upload final release audit
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gooo-self-improvement-frontier-projector-release-audit-${{ inputs.tag }}
           path: ${{ runner.temp }}/gooo-frontier-release-audit/release-audit.json
