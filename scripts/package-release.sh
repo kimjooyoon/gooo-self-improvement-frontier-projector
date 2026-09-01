@@ -3,11 +3,11 @@ set -euo pipefail
 
 release_root="${RUNNER_TEMP}/gooo-frontier-projector"
 asset_root="${RUNNER_TEMP}/gooo-frontier-release-assets"
-release_tag="${RELEASE_TAG:-v0.1.1}"
+release_tag="${RELEASE_TAG:-v0.2.0}"
 manifest_name="release-manifest-${release_tag}.json"
 mkdir -p "$asset_root"
 
-tar -C "$release_root" -czf "$asset_root/frontier-projector-evidence.tar.gz" conformance project inventory.json
+tar -C "$release_root" -czf "$asset_root/frontier-projector-evidence.tar.gz" conformance project immutable-ledger inventory.json
 source_commit="$(git rev-parse HEAD)"
 git archive --format=tar.gz --prefix=gooo-self-improvement-frontier-projector/ "$source_commit" > "$asset_root/frontier-projector-source.tar.gz"
 

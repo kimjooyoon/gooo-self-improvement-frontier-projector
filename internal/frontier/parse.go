@@ -105,6 +105,21 @@ func validateSourceRules(rules []SemanticRule) error {
 	if values["external_utility"] != "NO_INTERNAL_CLOSE" {
 		return fmt.Errorf(".gooo external utility policy is not canonical")
 	}
+	if values["immutable_ledger_version"] != "explicit-field-only" {
+		return fmt.Errorf(".gooo immutable ledger version policy is not canonical")
+	}
+	if values["released_identity"] != "release+tag+target+asset+digest" {
+		return fmt.Errorf(".gooo released identity policy is not canonical")
+	}
+	if values["input_status"] != "separate-from-projector-validity" {
+		return fmt.Errorf(".gooo input status policy is not canonical")
+	}
+	if values["operational_history"] != "append-only;historical-exclusion" {
+		return fmt.Errorf(".gooo operational history policy is not canonical")
+	}
+	if values["adapter_failure"] != "missing/stale/ambiguous=UNKNOWN;schema/identity=REFUTED" {
+		return fmt.Errorf(".gooo adapter failure policy is not canonical")
+	}
 	return nil
 }
 

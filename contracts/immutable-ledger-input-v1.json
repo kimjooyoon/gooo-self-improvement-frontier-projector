@@ -1,0 +1,27 @@
+{
+  "schema": "gooo/self-improvement-frontier/immutable-ledger-input/v1",
+  "ledger_version_policy": "explicit-field-only",
+  "required_identity": ["release", "tag", "released_asset", "ledger_version", "profile", "cells"],
+  "release_identity": ["repository", "release_id", "tag", "immutable", "tag_object_sha", "target_commit_sha", "assets"],
+  "asset_identity": ["id", "name", "size_bytes", "digest"],
+  "profile_identity": ["schema", "profile_id", "assessment_id", "summary", "precedence"],
+  "unknown_fields": ["stage", "step", "reason", "unknown_class", "next_operation", "blocked_by"],
+  "failure_classes": {
+    "UNKNOWN": ["MISSING", "STALE", "AMBIGUOUS"],
+    "REFUTED": ["SCHEMA", "IDENTITY"]
+  },
+  "operational_refutation": {
+    "state": "OPERATIONAL_REFUTED",
+    "historical": true,
+    "mutation": "APPEND",
+    "automatic_action": false
+  },
+  "authority": {
+    "repository_writes": 0,
+    "local_test_executions": 0,
+    "cross_project_required_gates": 0,
+    "commit": 0,
+    "merge": 0,
+    "release": 0
+  }
+}

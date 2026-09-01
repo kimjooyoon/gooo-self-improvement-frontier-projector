@@ -14,7 +14,13 @@ activity PreserveUnknownTuple(ClaimGraphInput) -> BlockedFrontier computes "unkn
 activity ExcludeHistoricalRefutation(ClaimGraphInput) -> FrontierProjection computes "historical_refutation=not-an-auto-action"
 activity EmitCausalTrace(ClaimGraphInput) -> CausalTrace computes "trace=deterministic-ndjson"
 activity VerifyReplayExactness(ClaimGraphInput) -> FrontierProjection computes "replay=byte-exact"
-activity ProjectSharedLedgerV048(ClaimGraphInput) -> FrontierProjection computes "shared-ledger=v0.48;immutable-input"
+activity ParseImmutableLedgerInput(ClaimGraphInput) -> FrontierProjection computes "adapter=generic-immutable-ledger-envelope"
+activity VerifyImmutableReleaseIdentity(ClaimGraphInput) -> FrontierProjection computes "identity=release+tag+target+asset+digest"
+activity ParseLedgerProfileCells(ClaimGraphInput) -> FrontierProjection computes "profile=cells+explicit-ledger-version"
+activity PreserveLedgerUnknownTuple(ClaimGraphInput) -> BlockedFrontier computes "unknown=exact-six-fields"
+activity PreserveLedgerRefutationHistory(ClaimGraphInput) -> CausalTrace computes "refutation=append-only-history"
+activity PreserveOperationalEventHistory(ClaimGraphInput) -> CausalTrace computes "operational=OPERATIONAL_REFUTED;history-only"
+activity ProjectImmutableLedgerInput(ClaimGraphInput) -> FrontierProjection computes "released-asset=v0.49-live-observation;input-status-separate"
 activity PreserveRuntimeAuthorityBoundary(ClaimGraphInput) -> FrontierProjection computes "repository_writes=0;local_test_executions=0;cross_project_required_gates=0"
 activity EmitHumanReport(ClaimGraphInput) -> FrontierProjection computes "report=mechanical-facts-only"
 activity PreserveCounterexampleHistory(ClaimGraphInput) -> CausalTrace computes "history=append-only"
@@ -31,3 +37,8 @@ rule product_authority commit=0;merge=0;release=0
 rule improvement exact-pair:scenario+fixture+contract+toolchain+runner;per-indicator-only;aggregate=NOT_COMBINED
 rule missing_metric null+UNKNOWN
 rule external_utility NO_INTERNAL_CLOSE
+rule immutable_ledger_version explicit-field-only
+rule released_identity release+tag+target+asset+digest
+rule input_status separate-from-projector-validity
+rule operational_history append-only;historical-exclusion
+rule adapter_failure missing/stale/ambiguous=UNKNOWN;schema/identity=REFUTED
