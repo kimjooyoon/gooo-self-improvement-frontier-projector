@@ -397,7 +397,7 @@ func graphUnknownTuple(input Input) *Unknown {
 	}
 	unknown := copyUnknown(input.GraphEvidence.Unknown)
 	unknown.BlockedBy = sortedStrings(unknown.BlockedBy)
-	return &unknown
+	return unknown
 }
 
 func projectFrontier(input Input, activities map[string]Activity, claims map[string]Claim, decision string) ([]FrontierItem, []BlockedItem) {

@@ -140,7 +140,7 @@ func ValidateContract(contract Contract) error {
 	if contract.Authority != (Authority{RepositoryWrites: 0, LocalTestExecutions: 0, CrossProjectRequiredGates: 0, AcceptanceRequiredGate: 0, ProductCommitMergeRelease: 0}) {
 		return fmt.Errorf("contract authority boundary is not zeroed")
 	}
-	if contract.Improvement != (ImprovementPolicy{Mode: "PER_INDICATOR_ONLY", IdentityFields: []string{"scenario", "fixture", "contract", "toolchain", "runner"}, Aggregate: "NOT_COMBINED", MissingMetric: "null+UNKNOWN"}) {
+	if !validImprovementPolicy(contract.Improvement) {
 		return fmt.Errorf("contract improvement policy is not exact-pair/per-indicator-only")
 	}
 	seenIDs := make(map[string]bool, len(contract.Cases))
@@ -159,6 +159,12 @@ func ValidateContract(contract Contract) error {
 		seenOrdinals[item.Ordinal] = true
 	}
 	return nil
+}
+
+func validImprovementPolicy(policy ImprovementPolicy) bool {
+	return policy.Mode == "PER_INDICATOR_ONLY" &&
+		equalStrings(policy.IdentityFields, []string{"scenario", "fixture", "contract", "toolchain", "runner"}) &&
+		policy.Aggregate == "NOT_COMBINED" && policy.MissingMetric == "null+UNKNOWN"
 }
 
 func ValidateCaseFixture(contractCase ContractCase, fixture CaseFixture) error {
