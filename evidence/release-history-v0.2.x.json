@@ -1,0 +1,112 @@
+{
+  "schema": "gooo/self-improvement-frontier/release-history/v1",
+  "mutation_policy": "NO_DELETE_NO_OVERWRITE",
+  "implementation": {
+    "pull_request": 7,
+    "pull_request_url": "https://github.com/kimjooyoon/gooo-self-improvement-frontier-projector/pull/7",
+    "implementation_head_sha": "a3af1b729f10e0121378da3ce6e480e6aae2fc5c",
+    "merge_commit_sha": "98c3529013dad271337e424a7f07d4e5131d7edf",
+    "pr_ci": {
+      "run_id": 33560730884,
+      "job_id": 100032300435,
+      "artifact_id": 9821137570,
+      "artifact_digest": "sha256:109862349cefb5842a34ad312d7713d77e875aaebb7cd3f8531e788a58fb6d52",
+      "conclusion": "success"
+    },
+    "main_ci": {
+      "run_id": 33560804271,
+      "job_id": 100032542543,
+      "artifact_id": 9821165488,
+      "artifact_digest": "sha256:3866442ad53c4bd66021fc292c51735f714ca546833adf0aebecfdee878448de",
+      "conclusion": "success"
+    }
+  },
+  "immutable_release": {
+    "tag": "v0.2.0",
+    "release_id": 380832128,
+    "tag_object_sha": "042ca1bf7dfb432bd2ec0abef9e9884c9abe0286",
+    "target_commit_sha": "98c3529013dad271337e424a7f07d4e5131d7edf",
+    "immutable": true,
+    "draft": false,
+    "release_url": "https://github.com/kimjooyoon/gooo-self-improvement-frontier-projector/releases/tag/v0.2.0",
+    "workflow": {
+      "run_id": 33560872760,
+      "job_id": 100032768910,
+      "audit_artifact_id": 9821200251,
+      "audit_artifact_digest": "sha256:662dd65b8dbb4a7db4f3f5567fb32e2b2ee94ba64d11bca44db7c5eb600935f8",
+      "conclusion": "success"
+    },
+    "assets": [
+      {"id": 540161705, "name": "frontier-projector-evidence.tar.gz", "size": 18846, "digest": "sha256:112564378170baddfba44a1b3f5bd39216af65aefbc1f43f13732dbbbd5695a3"},
+      {"id": 540161738, "name": "frontier-projector-source.tar.gz", "size": 38900, "digest": "sha256:51240e7d8c39a5d6e807c2233cc1cee19e5bc9e7157bc4b2c4d611a0ba0cc2f9"},
+      {"id": 540161755, "name": "release-manifest-v0.2.0.json", "size": 493, "digest": "sha256:d0df22bfc53909eb8df6b5a5726df6a942b4c4dfc988ccf80c3214cc90b823d6"}
+    ]
+  },
+  "adapter_observation": {
+    "schema": "gooo/self-improvement-frontier/immutable-ledger-input/v1",
+    "ledger_version": "gooo/self-improvement-portfolio/report/v1",
+    "source_repository": "kimjooyoon/gooo-self-improvement-ledger",
+    "source_release_id": 380810861,
+    "source_tag": "v0.49.0",
+    "source_tag_object_sha": "36f4fa271a72616a39a703c9658e905b670f5f64",
+    "source_target_commit_sha": "036d2d1e25df72a5568aeb16f6ac0a077ce4471f",
+    "source_asset_id": 540115901,
+    "source_asset_name": "gooo-self-improvement-ledger-036d2d1e25df72a5568aeb16f6ac0a077ce4471f",
+    "source_asset_size": 84127616,
+    "source_asset_digest": "sha256:e680c234fee34e36bae27685a29c716208cf83bb67e9375a31a9ee5194ca5208",
+    "profile_id": "self-improvement-portfolio-v1",
+    "assessment_id": "self-improvement-portfolio-v1-current-frontier",
+    "profile_summary": {"total": 62, "closed": 59, "unknown": 1, "refuted": 2}
+  },
+  "projection": {
+    "projector_decision": "CLOSED",
+    "input_status": "UNKNOWN",
+    "actionable_frontier": ["EXTERNAL_UTILITY_EVIDENCE"],
+    "blocked_frontier": ["operational:v049-parent-cache"],
+    "parent_cache_unknown": {
+      "stage": "v0490-parent-artifact-preflight",
+      "step": "parent-evidence-cache",
+      "reason": "PARENT_COMMIT_NOT_AVAILABLE_FOR_LOCK_SET_COMPARISON",
+      "unknown_class": "PARENT_ARTIFACT_UNAVAILABLE",
+      "next_operation": "RUN_FULL_59_LOCK_AUDIT",
+      "blocked_by": ["EXTERNAL_UTILITY_EVIDENCE"]
+    },
+    "external_utility_unknown": {
+      "stage": "EXTERNAL_UTILITY",
+      "step": "REQUIRE_INDEPENDENT_EXTERNAL_UTILITY_EVIDENCE",
+      "reason": "EXTERNAL_UTILITY_NOT_OBSERVED",
+      "unknown_class": "CAUSALITY_UNPROVEN",
+      "next_operation": "PROVIDE_INDEPENDENT_EXTERNAL_UTILITY_EVIDENCE",
+      "blocked_by": ["exact-before-after-utility-pair"]
+    },
+    "historical_refutation_count": 7,
+    "operational_refuted_count": 5,
+    "product_conformance_denominator": {"total": 12, "closed": 4, "unknown": 4, "refuted": 4},
+    "authority_projection": {
+      "runtime_writes": 0,
+      "product_writes": 0,
+      "score_inference": 0,
+      "percentage_inference": 0
+    }
+  },
+  "preserved_history": {
+    "prior_history_file": "evidence/release-history-v0.1.x.json",
+    "failed_releases": ["v0.1.0", "v0.1.1"],
+    "successful_immutable_release": "v0.1.2",
+    "failed_pr_ci_runs": [33560641370],
+    "failed_pr_branch_preserved": "feat/generic-immutable-ledger-adapter",
+    "deletion_or_overwrite_attempted": false
+  },
+  "local_validation": {
+    "go_test": 0,
+    "go_build": 0,
+    "go_vet": 0,
+    "gofmt": 0,
+    "shell_syntax": 0,
+    "actionlint": 0,
+    "jq_assertion": 0,
+    "conformance": 0,
+    "product_validation": 0,
+    "verification_authority": "GitHub Actions"
+  }
+}
