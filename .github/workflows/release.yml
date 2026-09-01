@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing immutable tag to release
+        description: New release tag that must not already exist
         required: true
+        default: v0.1.1
         type: string
 
 permissions:
@@ -19,7 +20,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: main
       - name: Set up Go 1.27.x
         uses: actions/setup-go@v5
         with:
@@ -32,22 +33,57 @@ jobs:
       - name: Package release assets
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
         run: ./scripts/package-release.sh
+      - name: Refuse to overwrite an existing correction tag or release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" >/dev/null 2>&1; then exit 1; fi
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}" >/dev/null 2>&1; then exit 1; fi
+      - name: Create annotated release tag through GitHub API
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          source_commit="$(git rev-parse HEAD)"
+          tag_json="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/tags" -f tag="$TAG" -f message="$TAG: immutable frontier projector release" -f object="$source_commit" -f type=commit)"
+          tag_object="$(jq -r '.sha' <<<"$tag_json")"
+          test -n "$tag_object" && test "$tag_object" != null
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/tags/$TAG" -f sha="$tag_object" >/dev/null
+          echo "tag_object=$tag_object" >> "$GITHUB_OUTPUT"
+          echo "target_commit=$source_commit" >> "$GITHUB_OUTPUT"
       - name: Create draft release from existing tag
         id: create
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
-          release_json="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/releases" -f tag_name="$TAG" -f name="Gooo self-improvement frontier projector $TAG" -f body="Immutable release for the deterministic frontier projector." -F draft=true)"
+          source_commit="$(git rev-parse HEAD)"
+          release_json="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/releases" -f tag_name="$TAG" -f target_commitish="$source_commit" -f name="Gooo self-improvement frontier projector $TAG" -f body="Immutable release for the deterministic frontier projector." -F draft=true -F prerelease=false)"
           release_id="$(jq -r '.id' <<<"$release_json")"
           test -n "$release_id"
+          jq -e --arg tag "$TAG" '.tag_name==$tag and .draft==true and .prerelease==false and (.assets|length)==0' <<<"$release_json" >/dev/null
           echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
       - name: Upload release assets
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.tag }}
-        run: gh release upload "$TAG" "$RUNNER_TEMP/gooo-frontier-release-assets/frontier-projector-evidence.tar.gz" "$RUNNER_TEMP/gooo-frontier-release-assets/frontier-projector-source.tar.gz" "$RUNNER_TEMP/gooo-frontier-release-assets/release-manifest-v0.1.0.json"
+          RELEASE_ID: ${{ steps.create.outputs.release_id }}
+        run: |
+          upload_url="$(gh api "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" --jq '.upload_url')"
+          upload_url="${upload_url%\{*}"
+          for asset in "$RUNNER_TEMP/gooo-frontier-release-assets/frontier-projector-evidence.tar.gz" "$RUNNER_TEMP/gooo-frontier-release-assets/frontier-projector-source.tar.gz" "$RUNNER_TEMP/gooo-frontier-release-assets/release-manifest-${{ inputs.tag }}.json"; do
+            name="$(basename "$asset")"
+            content_type="application/octet-stream"
+            case "$name" in
+              *.json) content_type="application/json" ;;
+              *.gz) content_type="application/gzip" ;;
+            esac
+            uploaded="$(gh api --method POST "$upload_url?name=$name" -H "Content-Type: $content_type" --input "$asset")"
+            jq -e --arg name "$name" '.name==$name and .state=="uploaded"' <<<"$uploaded" >/dev/null
+          done
       - name: Publish draft release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -58,6 +94,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
           RELEASE_ID: ${{ steps.create.outputs.release_id }}
+          TAG_OBJECT: ${{ steps.tag.outputs.tag_object }}
+          TARGET_COMMIT: ${{ steps.tag.outputs.target_commit }}
+          EXPECTED_TAG: ${{ inputs.tag }}
           AUDIT_OUTPUT: ${{ runner.temp }}/gooo-frontier-release-audit/release-audit.json
         run: ./scripts/verify-release.sh
       - name: Upload final release audit
