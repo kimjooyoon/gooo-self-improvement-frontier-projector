@@ -1,0 +1,33 @@
+{
+  "schema": "gooo/self-improvement-frontier/input/v1",
+  "source": {
+    "kind": "shared-ledger",
+    "release": "v0.48.0",
+    "immutable": true,
+    "acceptance_required_gate": 0,
+    "external_utility_state": "UNKNOWN"
+  },
+  "immutable_history": true,
+  "graph_bounded": true,
+  "claims": [
+    {"id": "claim-ledger-root", "activity_id": "activity-ledger-root", "state": "CLOSED", "historical": false, "immutable": true},
+    {"id": "claim-ledger-frontier", "activity_id": "activity-ledger-frontier", "state": "UNKNOWN", "historical": false, "immutable": true},
+    {"id": "claim-ledger-blocked", "activity_id": "activity-ledger-blocked", "state": "UNKNOWN", "historical": false, "immutable": true},
+    {"id": "claim-ledger-history", "activity_id": "activity-ledger-history", "state": "REFUTED", "historical": true, "immutable": true}
+  ],
+  "activities": [
+    {"id": "activity-ledger-root", "claim_id": "claim-ledger-root", "state": "CLOSED", "actionable": false, "historical": false, "blocked_by": [], "evidence": {"complete": true}},
+    {"id": "activity-ledger-frontier", "claim_id": "claim-ledger-frontier", "state": "UNKNOWN", "actionable": true, "historical": false, "blocked_by": ["activity-ledger-root"], "unknown": {"stage": "SHARED_LEDGER_V048", "step": "RESTORE_NEXT_OPERATION_EVIDENCE", "reason": "DIRECT_MISSING", "unknown_class": "DIRECT_MISSING", "next_operation": "RESTORE_FRONTIER_EVIDENCE", "blocked_by": ["activity-ledger-root"]}},
+    {"id": "activity-ledger-blocked", "claim_id": "claim-ledger-blocked", "state": "UNKNOWN", "actionable": true, "historical": false, "blocked_by": ["activity-ledger-frontier"], "unknown": {"stage": "SHARED_LEDGER_V048", "step": "WAIT_FOR_FRONTIER", "reason": "DEPENDENCY_BLOCKED", "unknown_class": "DEPENDENCY_BLOCKED", "next_operation": "WAIT_FOR_FRONTIER_EVIDENCE", "blocked_by": ["activity-ledger-frontier"]}},
+    {"id": "activity-ledger-history", "claim_id": "claim-ledger-history", "state": "REFUTED", "actionable": true, "historical": true, "blocked_by": []}
+  ],
+  "edges": [
+    {"id": "edge-ledger-root-frontier", "from": "activity-ledger-root", "to": "activity-ledger-frontier", "relation": "PRECEDES", "historical": false, "immutable": true},
+    {"id": "edge-ledger-frontier-blocked", "from": "activity-ledger-frontier", "to": "activity-ledger-blocked", "relation": "PRECEDES", "historical": false, "immutable": true},
+    {"id": "edge-ledger-frontier-blocked-by-root", "from": "activity-ledger-frontier", "to": "activity-ledger-root", "relation": "BLOCKED_BY", "historical": false, "immutable": true},
+    {"id": "edge-ledger-blocked-by-frontier", "from": "activity-ledger-blocked", "to": "activity-ledger-frontier", "relation": "BLOCKED_BY", "historical": false, "immutable": true}
+  ],
+  "history": [
+    {"id": "history-ledger-refuted", "activity_id": "activity-ledger-history", "state": "REFUTED", "historical": true, "immutable": true, "mutation": "APPEND"}
+  ]
+}

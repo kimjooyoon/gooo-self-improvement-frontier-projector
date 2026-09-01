@@ -1,0 +1,35 @@
+{
+  "schema": "gooo/self-improvement-frontier/denominator/v1",
+  "denominator_id": "frontier-projector-canonical-v1",
+  "total": 12,
+  "decision_precedence": ["REFUTED", "UNKNOWN", "CLOSED"],
+  "class_counts": {"CLOSED": 4, "UNKNOWN": 4, "REFUTED": 4},
+  "unknown_fields": ["stage", "step", "reason", "unknown_class", "next_operation", "blocked_by"],
+  "authority": {
+    "repository_writes": 0,
+    "local_test_executions": 0,
+    "cross_project_required_gates": 0,
+    "acceptance_required_gate": 0,
+    "product_commit_merge_release": 0
+  },
+  "improvement": {
+    "mode": "PER_INDICATOR_ONLY",
+    "identity_fields": ["scenario", "fixture", "contract", "toolchain", "runner"],
+    "aggregate": "NOT_COMBINED",
+    "missing_metric": "null+UNKNOWN"
+  },
+  "cases": [
+    {"ordinal": 1, "id": "closed-single-frontier", "class": "CLOSED", "fixture": "01-closed-single-frontier.json", "expected_decision": "CLOSED", "coverage": "single_frontier"},
+    {"ordinal": 2, "id": "closed-independent-parallel-frontier", "class": "CLOSED", "fixture": "02-closed-independent-parallel-frontier.json", "expected_decision": "CLOSED", "coverage": "independent_parallel_frontier"},
+    {"ordinal": 3, "id": "closed-dependency-closure", "class": "CLOSED", "fixture": "03-closed-dependency-closure.json", "expected_decision": "CLOSED", "coverage": "dependency_closure"},
+    {"ordinal": 4, "id": "closed-historical-refutation-exclusion", "class": "CLOSED", "fixture": "04-closed-historical-refutation-exclusion.json", "expected_decision": "CLOSED", "coverage": "historical_refutation_exclusion"},
+    {"ordinal": 5, "id": "unknown-direct-missing", "class": "UNKNOWN", "fixture": "05-unknown-direct-missing.json", "expected_decision": "UNKNOWN", "coverage": "missing_graph_evidence"},
+    {"ordinal": 6, "id": "unknown-stale-evidence", "class": "UNKNOWN", "fixture": "06-unknown-stale-evidence.json", "expected_decision": "UNKNOWN", "coverage": "stale_graph_evidence"},
+    {"ordinal": 7, "id": "unknown-ambiguous-edge", "class": "UNKNOWN", "fixture": "07-unknown-ambiguous-edge.json", "expected_decision": "UNKNOWN", "coverage": "ambiguous_graph_evidence"},
+    {"ordinal": 8, "id": "unknown-unbounded-graph", "class": "UNKNOWN", "fixture": "08-unknown-unbounded-graph.json", "expected_decision": "UNKNOWN", "coverage": "unbounded_graph_evidence"},
+    {"ordinal": 9, "id": "refuted-cycle", "class": "REFUTED", "fixture": "09-refuted-cycle.json", "expected_decision": "REFUTED", "coverage": "cycle"},
+    {"ordinal": 10, "id": "refuted-contradictory-edge", "class": "REFUTED", "fixture": "10-refuted-contradictory-edge.json", "expected_decision": "REFUTED", "coverage": "contradictory_edge"},
+    {"ordinal": 11, "id": "refuted-unauthorized-mutation", "class": "REFUTED", "fixture": "11-refuted-unauthorized-mutation.json", "expected_decision": "REFUTED", "coverage": "unauthorized_mutation"},
+    {"ordinal": 12, "id": "refuted-false-closure", "class": "REFUTED", "fixture": "12-refuted-false-closure.json", "expected_decision": "REFUTED", "coverage": "false_closure"}
+  ]
+}
