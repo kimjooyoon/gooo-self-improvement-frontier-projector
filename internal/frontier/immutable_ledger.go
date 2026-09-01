@@ -78,8 +78,12 @@ func AdaptImmutableLedger(envelope ImmutableLedgerInput, envelopeDigest string) 
 	}
 	if validation.State != "" {
 		input.ImmutableLedger.InputStatus = validation.State
+		failureKind := validation.State
+		if envelope.Failure != nil && envelope.Failure.Kind != "" {
+			failureKind = strings.ToUpper(envelope.Failure.Kind)
+		}
 		input.ImmutableLedger.Failure = &AdapterFailure{
-			Kind:          validation.State,
+			Kind:          failureKind,
 			Stage:         validation.Unknown.Stage,
 			Step:          validation.Unknown.Step,
 			Reason:        validation.Unknown.Reason,
