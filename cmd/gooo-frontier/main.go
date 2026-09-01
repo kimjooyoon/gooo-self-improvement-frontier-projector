@@ -50,7 +50,7 @@ func runProject(args []string) error {
 	if *inputPath == "" || *outputPath == "" {
 		return fmt.Errorf("project requires --input and --output")
 	}
-	spec, contract, sourceDigest, err := loadSemantics(*sourcePath, *contractPath)
+	spec, _, sourceDigest, err := loadSemantics(*sourcePath, *contractPath)
 	if err != nil {
 		return err
 	}

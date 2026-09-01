@@ -65,7 +65,7 @@ func TestNormalFrontierShapes(t *testing.T) {
 	if len(projections[2].Projection.Canonical.Frontier) != 1 || projections[2].Projection.Canonical.Frontier[0].ActivityID != "activity-proof" {
 		t.Fatalf("dependency frontier = %+v", projections[2].Projection.Canonical.Frontier)
 	}
-	if len(projections[2].Projection.Blocked) != 1 || projections[2].Projection.Blocked[0].ActivityID != "activity-publish" {
+	if len(projections[2].Projection.Blocked.Blocked) != 1 || projections[2].Projection.Blocked.Blocked[0].ActivityID != "activity-publish" {
 		t.Fatalf("dependency blocked frontier = %+v", projections[2].Projection.Blocked)
 	}
 	if len(projections[3].Projection.Canonical.HistoricalRefutationsExcluded) != 1 || projections[3].Projection.Canonical.HistoricalRefutationsExcluded[0] != "activity-old-refuted" {
