@@ -1,0 +1,21 @@
+{
+  "schema": "gooo/self-improvement-frontier/release-history/v1",
+  "mutation_policy": "NO_DELETE_NO_OVERWRITE",
+  "failed_release": {
+    "tag": "v0.1.0",
+    "release_id": 380747908,
+    "tag_object_sha": "68cd491468e509130b903a3f2008f76df315f41d",
+    "target_commit_sha": "b5a15f16c90649cccdde4f31a0a62ab9588ae924",
+    "immutable": false,
+    "state": "REFUTED",
+    "reason": "RELEASE_API_REPORTED_IMMUTABLE_FALSE",
+    "preserved": true,
+    "deletion_attempted": false,
+    "assets": [
+      {"id": 539991747, "name": "frontier-projector-evidence.tar.gz", "size": 11770, "digest": "sha256:d2ed86a2cd5b9f0e5120000c1dfbf0b3c1a5bf907475d566418e0ca870a901e0"},
+      {"id": 539991746, "name": "frontier-projector-source.tar.gz", "size": 25122, "digest": "sha256:b3f68ddbc02aefddc6011dc7a5b48becc980ffcbc725d5adfa1e3c1461e2a3e2"},
+      {"id": 539991745, "name": "release-manifest-v0.1.0.json", "size": 493, "digest": "sha256:56bafd402f751a599bbdee9384322de458e284190201d084e7f357f789f5a4a1"}
+    ]
+  },
+  "correction": {"target_tag": "v0.1.1", "requires_immutable_api_true": true}
+}
