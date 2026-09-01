@@ -111,9 +111,15 @@ func EvaluateInput(spec SourceSpec, input Input, sourceDigest string) (Projectio
 		}
 		sourceDigest = digest
 	}
-	inputDigest, err := CanonicalDigest(input)
-	if err != nil {
-		return Projection{}, err
+	inputDigest := ""
+	var err error
+	if input.ImmutableLedger != nil && input.ImmutableLedger.EnvelopeDigest != "" {
+		inputDigest = input.ImmutableLedger.EnvelopeDigest
+	} else {
+		inputDigest, err = CanonicalDigest(input)
+		if err != nil {
+			return Projection{}, err
+		}
 	}
 	semanticIR := BuildSemanticIR(spec, sourceDigest)
 	semanticIRDigest, err := CanonicalDigest(semanticIR)
@@ -129,8 +135,10 @@ func EvaluateInput(spec SourceSpec, input Input, sourceDigest string) (Projectio
 	activities, claims, issues := indexInput(input)
 	historicalRefutations := historicalRefutationIDs(input, activities)
 	trace := traceInput(input, activities)
+	inputStatus := inputStatusFor(input, activities, issues)
+	trace = append(trace, ledgerMetadataTrace(input, inputStatus)...)
 	for _, issue := range issues {
-		trace = append(trace, TraceEvent{Kind: "REFUTATION_OBSERVED", SubjectID: issue.SubjectID, Reason: issue.Reason, BlockingIDs: nonEmpty(issue.BlockingID)})
+		trace = append(trace, TraceEvent{Kind: "REFUTATION_OBSERVED", SubjectID: issue.SubjectID, Reason: issue.Reason, BlockingIDs: nonEmpty(issue.BlockingID), Class: "PROJECTOR_INPUT_REFUTATION", Origin: "projector_validation"})
 	}
 
 	decision := DecisionClosed
@@ -147,16 +155,17 @@ func EvaluateInput(spec SourceSpec, input Input, sourceDigest string) (Projectio
 	frontier, blocked := projectFrontier(input, activities, claims, decision)
 	for _, item := range frontier {
 		unknown := item.Unknown
-		trace = append(trace, TraceEvent{Kind: "FRONTIER_SELECTED", SubjectID: item.ActivityID, State: DecisionUnknown, Unknown: &unknown})
+		trace = append(trace, TraceEvent{Kind: "FRONTIER_SELECTED", SubjectID: item.ActivityID, State: DecisionUnknown, Unknown: &unknown, Class: "ACTIONABLE_FRONTIER", Origin: ledgerOrigin(input, item.ActivityID)})
 	}
 	for _, item := range blocked {
 		unknown := item.Unknown
-		trace = append(trace, TraceEvent{Kind: "DEPENDENCY_BLOCKED", SubjectID: item.ActivityID, State: DecisionUnknown, BlockingIDs: item.BlockingIDs, Unknown: &unknown})
+		trace = append(trace, TraceEvent{Kind: "DEPENDENCY_BLOCKED", SubjectID: item.ActivityID, State: DecisionUnknown, BlockingIDs: item.BlockingIDs, Unknown: &unknown, Class: "BLOCKED_FRONTIER", Origin: ledgerOrigin(input, item.ActivityID)})
 	}
 	if graphUnknown != nil {
-		trace = append(trace, TraceEvent{Kind: "GRAPH_EVIDENCE_UNKNOWN", SubjectID: "graph-evidence", State: DecisionUnknown, Unknown: graphUnknown, Reason: graphUnknown.Reason})
+		trace = append(trace, TraceEvent{Kind: "GRAPH_EVIDENCE_UNKNOWN", SubjectID: "graph-evidence", State: DecisionUnknown, Unknown: graphUnknown, Reason: graphUnknown.Reason, Class: "PROJECTOR_INPUT_UNKNOWN", Origin: "projector_validation"})
 	}
-	trace = append(trace, TraceEvent{Kind: "PROJECTION_DECISION", SubjectID: "frontier-projection", Decision: decision})
+	trace = append(trace, TraceEvent{Kind: "INPUT_STATUS", SubjectID: "immutable-ledger-input", State: inputStatus, Reason: "INPUT_STATUS_IS_SEPARATE_FROM_PROJECTOR_VALIDITY", Class: "INPUT_STATUS", Origin: "immutable-ledger-adapter"})
+	trace = append(trace, TraceEvent{Kind: "PROJECTION_DECISION", SubjectID: "frontier-projection", Decision: decision, Class: "PROJECTOR_VALIDITY", Origin: "projector"})
 	for index := range trace {
 		trace[index].Sequence = index + 1
 	}
@@ -170,6 +179,17 @@ func EvaluateInput(spec SourceSpec, input Input, sourceDigest string) (Projectio
 		AcceptanceRequiredGate: input.Source.AcceptanceRequiredGate,
 		Toolchain: Toolchain,
 		Runner: Runner,
+		InputStatus: inputStatus,
+	}
+	if input.ImmutableLedger != nil {
+		subject.ProfileID = input.ImmutableLedger.Profile.ProfileID
+		subject.AssessmentID = input.ImmutableLedger.Profile.AssessmentID
+		subject.LedgerVersion = input.ImmutableLedger.LedgerVersion
+		subject.ReleaseID = input.ImmutableLedger.Release.ReleaseID
+		subject.TagObjectSHA = input.ImmutableLedger.Tag.ObjectSHA
+		subject.TargetCommitSHA = input.ImmutableLedger.Tag.TargetCommitSHA
+		subject.ReleasedAssetID = input.ImmutableLedger.ReleasedAsset.ID
+		subject.ReleasedAssetDigest = input.ImmutableLedger.ReleasedAsset.Digest
 	}
 	canonical := CanonicalFrontier{
 		Schema: frontierSchema,
@@ -207,6 +227,8 @@ func EvaluateInput(spec SourceSpec, input Input, sourceDigest string) (Projectio
 		ReplayExact: true,
 		SemanticIRDigest: semanticIRDigest,
 		GraphDigest: graphDigest,
+		InputStatus: inputStatus,
+		OperationalRefutedCount: operationalRefutedCount(input),
 	}
 	report := BuildHumanReport(canonical, blockedDocument, receipt, trace)
 	return Projection{Canonical: canonical, Blocked: blockedDocument, Trace: trace, Receipt: receipt, Report: report, SemanticIR: semanticIR, Graph: graph}, nil
@@ -543,7 +565,7 @@ func traceInput(input Input, activities map[string]Activity) []TraceEvent {
 			copy := normalizedUnknown(activity.Unknown)
 			unknown = &copy
 		}
-		trace = append(trace, TraceEvent{Kind: "ACTIVITY_OBSERVED", SubjectID: id, State: activity.State, Historical: activity.Historical, Unknown: unknown})
+		trace = append(trace, TraceEvent{Kind: "ACTIVITY_OBSERVED", SubjectID: id, State: activity.State, Historical: activity.Historical, Unknown: unknown, Origin: "claim-activity-graph"})
 	}
 	edges := append([]Edge(nil), input.Edges...)
 	sort.Slice(edges, func(i, j int) bool {
@@ -559,7 +581,7 @@ func traceInput(input Input, activities map[string]Activity) []TraceEvent {
 		trace = append(trace, TraceEvent{Kind: "EDGE_OBSERVED", SubjectID: edge.ID, Historical: edge.Historical, Relation: edge.Relation, BlockingIDs: []string{edge.From, edge.To}})
 	}
 	for _, id := range historicalRefutationIDs(input, activities) {
-		trace = append(trace, TraceEvent{Kind: "HISTORICAL_REFUTATION_EXCLUDED", SubjectID: id, State: DecisionRefuted, Historical: true, Reason: "HISTORICAL_NOT_AUTO_ACTION"})
+		trace = append(trace, TraceEvent{Kind: "HISTORICAL_REFUTATION_EXCLUDED", SubjectID: id, State: DecisionRefuted, Historical: true, Reason: "HISTORICAL_NOT_AUTO_ACTION", Class: "HISTORICAL_REFUTATION", Origin: "immutable-history"})
 	}
 	return trace
 }

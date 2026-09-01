@@ -32,6 +32,11 @@ var RequiredSourceRules = []string{
 	"improvement",
 	"missing_metric",
 	"external_utility",
+	"immutable_ledger_version",
+	"released_identity",
+	"input_status",
+	"operational_history",
+	"adapter_failure",
 }
 
 var RequiredActivityIDs = []string{
@@ -43,7 +48,13 @@ var RequiredActivityIDs = []string{
 	"ExcludeHistoricalRefutation",
 	"EmitCausalTrace",
 	"VerifyReplayExactness",
-	"ProjectSharedLedgerV048",
+	"ParseImmutableLedgerInput",
+	"VerifyImmutableReleaseIdentity",
+	"ParseLedgerProfileCells",
+	"PreserveLedgerUnknownTuple",
+	"PreserveLedgerRefutationHistory",
+	"PreserveOperationalEventHistory",
+	"ProjectImmutableLedgerInput",
 	"PreserveRuntimeAuthorityBoundary",
 	"EmitHumanReport",
 	"PreserveCounterexampleHistory",
@@ -73,6 +84,113 @@ type SourceBinding struct {
 	Immutable              bool   `json:"immutable"`
 	AcceptanceRequiredGate int    `json:"acceptance_required_gate"`
 	ExternalUtilityState   string `json:"external_utility_state"`
+}
+
+type ReleaseAsset struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	SizeBytes   int64  `json:"size_bytes"`
+	Digest      string `json:"digest"`
+	DownloadURL string `json:"download_url,omitempty"`
+	EntryPath   string `json:"entry_path,omitempty"`
+}
+
+type ReleaseObservation struct {
+	Repository      string        `json:"repository"`
+	ReleaseID       int64         `json:"release_id"`
+	Tag             string        `json:"tag"`
+	Immutable       bool          `json:"immutable"`
+	TagObjectSHA    string        `json:"tag_object_sha"`
+	TargetCommitSHA string        `json:"target_commit_sha"`
+	Assets          []ReleaseAsset `json:"assets"`
+}
+
+type TagObservation struct {
+	Name            string `json:"name"`
+	ObjectSHA       string `json:"object_sha"`
+	TargetCommitSHA string `json:"target_commit_sha"`
+}
+
+type LedgerSummary struct {
+	Total   int `json:"total"`
+	Closed  int `json:"closed"`
+	Unknown int `json:"unknown"`
+	Refuted int `json:"refuted"`
+}
+
+type LedgerProfile struct {
+	Schema       string        `json:"schema"`
+	ProfileID    string        `json:"profile_id"`
+	AssessmentID string        `json:"assessment_id"`
+	SubjectSHA   string        `json:"subject_sha"`
+	Decision     string        `json:"decision"`
+	Precedence   []string      `json:"precedence"`
+	Summary      LedgerSummary `json:"summary"`
+}
+
+type LedgerCell struct {
+	Ordinal     int      `json:"ordinal"`
+	ID          string   `json:"id"`
+	Axis        string   `json:"axis"`
+	Proof       string   `json:"proof"`
+	Indicator   string   `json:"indicator"`
+	Activity    string   `json:"activity"`
+	State       string   `json:"state"`
+	Numerator   int      `json:"numerator"`
+	Denominator int      `json:"denominator"`
+	Unknown     *Unknown `json:"unknown,omitempty"`
+	Refutation  *Unknown `json:"refutation,omitempty"`
+}
+
+type OperationalEvent struct {
+	ID            string   `json:"id"`
+	State         string   `json:"state"`
+	Historical    bool     `json:"historical"`
+	Stage         string   `json:"stage"`
+	Step          string   `json:"step"`
+	Reason        string   `json:"reason"`
+	UnknownClass  string   `json:"unknown_class"`
+	NextOperation string   `json:"next_operation"`
+	BlockedBy     []string `json:"blocked_by"`
+	Source        string   `json:"source,omitempty"`
+}
+
+type AdapterFailure struct {
+	Kind          string   `json:"kind"`
+	Stage         string   `json:"stage"`
+	Step          string   `json:"step"`
+	Reason        string   `json:"reason"`
+	UnknownClass  string   `json:"unknown_class"`
+	NextOperation string   `json:"next_operation"`
+	BlockedBy     []string `json:"blocked_by"`
+}
+
+type ImmutableLedgerInput struct {
+	Schema            string             `json:"schema"`
+	LedgerVersion     string             `json:"ledger_version"`
+	Release           ReleaseObservation `json:"release"`
+	Tag               TagObservation     `json:"tag"`
+	ReleasedAsset     ReleaseAsset       `json:"released_asset"`
+	Profile           LedgerProfile      `json:"profile"`
+	Cells             []LedgerCell       `json:"cells"`
+	OperationalEvents []OperationalEvent `json:"operational_events"`
+	Failure           *AdapterFailure    `json:"failure,omitempty"`
+}
+
+type ImmutableLedgerMetadata struct {
+	EnvelopeSchema          string             `json:"envelope_schema"`
+	EnvelopeDigest          string             `json:"envelope_digest"`
+	LedgerVersion           string             `json:"ledger_version"`
+	Profile                 LedgerProfile      `json:"profile"`
+	Release                 ReleaseObservation `json:"release"`
+	Tag                     TagObservation     `json:"tag"`
+	ReleasedAsset           ReleaseAsset       `json:"released_asset"`
+	InputStatus             string             `json:"input_status"`
+	Failure                 *AdapterFailure    `json:"failure,omitempty"`
+	CellCount               int                `json:"cell_count"`
+	UnknownCellIDs          []string           `json:"unknown_cell_ids"`
+	RefutedCellIDs          []string           `json:"refuted_cell_ids"`
+	OperationalRefutedCount int                `json:"operational_refuted_count"`
 }
 
 type Claim struct {
@@ -118,15 +236,17 @@ type GraphEvidence struct {
 }
 
 type Input struct {
-	Schema          string         `json:"schema"`
-	Source          SourceBinding  `json:"source"`
-	ImmutableHistory bool          `json:"immutable_history"`
-	GraphBounded    bool           `json:"graph_bounded"`
-	GraphEvidence   *GraphEvidence `json:"graph_evidence,omitempty"`
-	Claims          []Claim        `json:"claims"`
-	Activities      []Activity     `json:"activities"`
-	Edges           []Edge         `json:"edges"`
-	History         []HistoryEntry `json:"history"`
+	Schema            string                  `json:"schema"`
+	Source            SourceBinding           `json:"source"`
+	ImmutableHistory  bool                    `json:"immutable_history"`
+	GraphBounded      bool                    `json:"graph_bounded"`
+	GraphEvidence     *GraphEvidence          `json:"graph_evidence,omitempty"`
+	Claims            []Claim                 `json:"claims"`
+	Activities        []Activity              `json:"activities"`
+	Edges             []Edge                  `json:"edges"`
+	History           []HistoryEntry          `json:"history"`
+	ImmutableLedger   *ImmutableLedgerMetadata `json:"immutable_ledger,omitempty"`
+	OperationalEvents []OperationalEvent      `json:"operational_events,omitempty"`
 }
 
 type SemanticRule struct {
@@ -215,6 +335,15 @@ type Subject struct {
 	AcceptanceRequiredGate int `json:"acceptance_required_gate"`
 	Toolchain              string `json:"toolchain"`
 	Runner                 string `json:"runner"`
+	InputStatus            string `json:"input_status"`
+	ProfileID              string `json:"profile_id,omitempty"`
+	AssessmentID           string `json:"assessment_id,omitempty"`
+	LedgerVersion          string `json:"ledger_version,omitempty"`
+	ReleaseID              int64  `json:"release_id,omitempty"`
+	TagObjectSHA           string `json:"tag_object_sha,omitempty"`
+	TargetCommitSHA        string `json:"target_commit_sha,omitempty"`
+	ReleasedAssetID        int64  `json:"released_asset_id,omitempty"`
+	ReleasedAssetDigest    string `json:"released_asset_digest,omitempty"`
 }
 
 type CanonicalFrontier struct {
@@ -248,6 +377,8 @@ type TraceEvent struct {
 	Unknown     *Unknown `json:"unknown,omitempty"`
 	Decision    string   `json:"decision,omitempty"`
 	Reason      string   `json:"reason,omitempty"`
+	Class       string   `json:"class,omitempty"`
+	Origin      string   `json:"origin,omitempty"`
 }
 
 type AuthorityReport struct {
@@ -300,6 +431,8 @@ type Receipt struct {
 	ReplayExact               bool              `json:"replay_exact"`
 	SemanticIRDigest          string            `json:"semantic_ir_digest"`
 	GraphDigest               string            `json:"graph_digest"`
+	InputStatus               string            `json:"input_status"`
+	OperationalRefutedCount   int               `json:"operational_refuted_count"`
 }
 
 type LocalExecution struct {

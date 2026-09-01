@@ -54,8 +54,8 @@ func runProject(args []string) error {
 	if err != nil {
 		return err
 	}
-	var input frontier.Input
-	if _, err := frontier.LoadJSON(*inputPath, &input); err != nil {
+	input, err := frontier.LoadProjectInput(*inputPath)
+	if err != nil {
 		return err
 	}
 	first, err := frontier.EvaluateInput(spec, input, sourceDigest)

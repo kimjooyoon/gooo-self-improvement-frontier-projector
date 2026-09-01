@@ -72,9 +72,12 @@ func writeTrace(path string, events []TraceEvent) error {
 func BuildHumanReport(frontier CanonicalFrontier, blocked BlockedFrontier, receipt Receipt, trace []TraceEvent) string {
 	var builder strings.Builder
 	builder.WriteString("# Self-improvement frontier projection\n\n")
-	fmt.Fprintf(&builder, "Decision: `%s`\n\n", frontier.Decision)
+	fmt.Fprintf(&builder, "Projector decision: `%s`; input status: `%s`.\n\n", frontier.Decision, frontier.Subject.InputStatus)
 	fmt.Fprintf(&builder, "Input digest: `%s`\n\n", frontier.Subject.InputDigest)
-	builder.WriteString("The decision precedence is `REFUTED > UNKNOWN > CLOSED`. The frontier is a proposal only; product commit, merge, and release authority are zero. No score or percentage is emitted.\n\n")
+	builder.WriteString("Projector validity and released-input status are separate: unresolved input evidence does not become product authority. The decision precedence is `REFUTED > UNKNOWN > CLOSED`. The frontier is a proposal only; product commit, merge, and release authority are zero. No score or percentage is emitted.\n\n")
+	if frontier.Subject.ReleaseID != 0 {
+		fmt.Fprintf(&builder, "Immutable released input: release `%d`; tag object `%s`; target `%s`; asset `%d`; digest `%s`; ledger version `%s`.\n\n", frontier.Subject.ReleaseID, frontier.Subject.TagObjectSHA, frontier.Subject.TargetCommitSHA, frontier.Subject.ReleasedAssetID, frontier.Subject.ReleasedAssetDigest, frontier.Subject.LedgerVersion)
+	}
 	builder.WriteString("## Canonical frontier\n\n")
 	fmt.Fprintf(&builder, "Antichain: `%t`; items: `%d`.\n\n", frontier.Antichain, len(frontier.Frontier))
 	builder.WriteString("| activity_id | claim_id | next_operation | unknown_class | blocked_by |\n|---|---|---|---|---|\n")
@@ -99,6 +102,9 @@ func BuildHumanReport(frontier CanonicalFrontier, blocked BlockedFrontier, recei
 	} else {
 		fmt.Fprintf(&builder, "Excluded historical refutations: `%s`. These IDs are preserved in the causal trace and are not automatic actions.\n\n", strings.Join(frontier.HistoricalRefutationsExcluded, "`, `"))
 	}
+	fmt.Fprintf(&builder, "Historical refutation IDs are excluded from action: `%d`; operational `OPERATIONAL_REFUTED` history preserved: `%d`.\n\n", len(frontier.HistoricalRefutationsExcluded), receipt.OperationalRefutedCount)
+	builder.WriteString("## Causal classification\n\n")
+	builder.WriteString("`ACTIONABLE_FRONTIER` and `BLOCKED_FRONTIER` are live proposal classes. `HISTORICAL_REFUTATION` is preserved evidence and is never an automatic action. These classes are emitted with stable IDs in `causal-trace.ndjson`.\n\n")
 	builder.WriteString("## Unknown tuple fields\n\n")
 	builder.WriteString("Every emitted unknown tuple has the six fields `stage`, `step`, `reason`, `unknown_class`, `next_operation`, and `blocked_by`.\n\n")
 	builder.WriteString("## Runtime boundary\n\n")
