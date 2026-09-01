@@ -112,6 +112,7 @@ func EvaluateInput(spec SourceSpec, input Input, sourceDigest string) (Projectio
 		sourceDigest = digest
 	}
 	inputDigest := ""
+	var err error
 	if input.ImmutableLedger != nil && input.ImmutableLedger.EnvelopeDigest != "" {
 		inputDigest = input.ImmutableLedger.EnvelopeDigest
 	} else {

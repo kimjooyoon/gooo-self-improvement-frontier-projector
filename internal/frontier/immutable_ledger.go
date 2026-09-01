@@ -219,7 +219,8 @@ func validateImmutableLedger(envelope ImmutableLedgerInput) adapterValidation {
 				return adapterRefuted("LEDGER_SCHEMA_CONTRADICTION", "VERIFY_OPERATIONAL_HISTORY", "OPERATIONAL_REFUTATION_HISTORY_MALFORMED", []string{event.ID})
 			}
 		case DecisionUnknown:
-			if !operationalUnknown(event).Valid() {
+			unknown := operationalUnknown(event)
+			if !unknown.Valid() {
 				return adapterRefuted("LEDGER_SCHEMA_CONTRADICTION", "VERIFY_OPERATIONAL_UNKNOWN", "OPERATIONAL_UNKNOWN_TUPLE_MALFORMED", []string{event.ID})
 			}
 		case DecisionClosed:
