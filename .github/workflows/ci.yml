@@ -25,7 +25,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: ./scripts/ci-verify.sh
       - name: Upload generated frontier evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gooo-self-improvement-frontier-projector-${{ github.sha }}
           path: ${{ runner.temp }}/gooo-frontier-projector
