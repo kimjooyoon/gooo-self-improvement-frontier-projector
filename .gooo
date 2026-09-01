@@ -1,0 +1,33 @@
+package frontierprojector
+namespace selfimprovementfrontier
+
+entity ClaimGraphInput id "gooo://frontier-projector/claim-graph-input"
+entity FrontierProjection id "gooo://frontier-projector/frontier-projection"
+entity BlockedFrontier id "gooo://frontier-projector/blocked-frontier"
+entity CausalTrace id "gooo://frontier-projector/causal-trace"
+
+activity ParseImmutableClaimGraph(ClaimGraphInput) -> FrontierProjection computes "frontier-projector:v1;input=claim-activity-graph"
+activity PreserveDecisionPrecedence(ClaimGraphInput) -> FrontierProjection computes "precedence=REFUTED>UNKNOWN>CLOSED"
+activity NormalizePartialOrder(ClaimGraphInput) -> FrontierProjection computes "relation=PRECEDES:from->to"
+activity ProjectMinimalActionableAntichain(ClaimGraphInput) -> FrontierProjection computes "frontier=live-actionable-minimal-antichain"
+activity PreserveUnknownTuple(ClaimGraphInput) -> BlockedFrontier computes "unknown=stage,step,reason,unknown_class,next_operation,blocked_by"
+activity ExcludeHistoricalRefutation(ClaimGraphInput) -> FrontierProjection computes "historical_refutation=not-an-auto-action"
+activity EmitCausalTrace(ClaimGraphInput) -> CausalTrace computes "trace=deterministic-ndjson"
+activity VerifyReplayExactness(ClaimGraphInput) -> FrontierProjection computes "replay=byte-exact"
+activity ProjectSharedLedgerV048(ClaimGraphInput) -> FrontierProjection computes "shared-ledger=v0.48;immutable-input"
+activity PreserveRuntimeAuthorityBoundary(ClaimGraphInput) -> FrontierProjection computes "repository_writes=0;local_test_executions=0;cross_project_required_gates=0"
+activity EmitHumanReport(ClaimGraphInput) -> FrontierProjection computes "report=mechanical-facts-only"
+activity PreserveCounterexampleHistory(ClaimGraphInput) -> CausalTrace computes "history=append-only"
+
+rule precedence REFUTED > UNKNOWN > CLOSED
+rule partial_order PRECEDES:from->to
+rule blocked_by BLOCKED_BY:blocked->blocker
+rule frontier MINIMAL_ANTICHAIN:live+actionable+nonhistorical
+rule historical_refutation AUTO_ACTION=false
+rule unknown_fields stage,step,reason,unknown_class,next_operation,blocked_by
+rule acceptance_required_gate 0
+rule runtime_authority repository_writes=0;local_test_executions=0;cross_project_required_gates=0
+rule product_authority commit=0;merge=0;release=0
+rule improvement exact-pair:scenario+fixture+contract+toolchain+runner;per-indicator-only;aggregate=NOT_COMBINED
+rule missing_metric null+UNKNOWN
+rule external_utility NO_INTERNAL_CLOSE

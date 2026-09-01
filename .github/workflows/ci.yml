@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Go 1.27.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+          cache: true
+      - name: Run CI-only verification
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/ci-verify.sh
+      - name: Upload generated frontier evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: gooo-self-improvement-frontier-projector-${{ github.sha }}
+          path: ${{ runner.temp }}/gooo-frontier-projector
+          if-no-files-found: error
+          retention-days: 14
