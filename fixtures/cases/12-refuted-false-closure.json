@@ -1,0 +1,20 @@
+{
+  "case_id": "refuted-false-closure",
+  "class": "REFUTED",
+  "expected_decision": "REFUTED",
+  "description": "A CLOSED activity has incomplete closure evidence.",
+  "input": {
+    "schema": "gooo/self-improvement-frontier/input/v1",
+    "source": {"kind": "shared-ledger", "release": "v0.48.0", "immutable": true, "acceptance_required_gate": 0, "external_utility_state": "UNKNOWN"},
+    "immutable_history": true,
+    "graph_bounded": true,
+    "claims": [
+      {"id": "claim-false-closed", "activity_id": "activity-false-closed", "state": "CLOSED", "historical": false, "immutable": true}
+    ],
+    "activities": [
+      {"id": "activity-false-closed", "claim_id": "claim-false-closed", "state": "CLOSED", "actionable": false, "historical": false, "blocked_by": [], "evidence": {"complete": false}}
+    ],
+    "edges": [],
+    "history": []
+  }
+}

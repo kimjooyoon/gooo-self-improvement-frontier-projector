@@ -1,0 +1,25 @@
+{
+  "case_id": "closed-dependency-closure",
+  "class": "CLOSED",
+  "expected_decision": "CLOSED",
+  "description": "The minimal frontier contains the first unresolved dependency and blocks its dependent.",
+  "input": {
+    "schema": "gooo/self-improvement-frontier/input/v1",
+    "source": {"kind": "shared-ledger", "release": "v0.48.0", "immutable": true, "acceptance_required_gate": 0, "external_utility_state": "UNKNOWN"},
+    "immutable_history": true,
+    "graph_bounded": true,
+    "claims": [
+      {"id": "claim-proof", "activity_id": "activity-proof", "state": "UNKNOWN", "historical": false, "immutable": true},
+      {"id": "claim-publish", "activity_id": "activity-publish", "state": "UNKNOWN", "historical": false, "immutable": true}
+    ],
+    "activities": [
+      {"id": "activity-proof", "claim_id": "claim-proof", "state": "UNKNOWN", "actionable": true, "historical": false, "blocked_by": [], "unknown": {"stage": "FRONTIER", "step": "RESTORE_DIRECT_EVIDENCE", "reason": "DIRECT_MISSING", "unknown_class": "DIRECT_MISSING", "next_operation": "RESTORE_PROOF_EVIDENCE", "blocked_by": []}},
+      {"id": "activity-publish", "claim_id": "claim-publish", "state": "UNKNOWN", "actionable": true, "historical": false, "blocked_by": ["activity-proof"], "unknown": {"stage": "FRONTIER", "step": "WAIT_FOR_DEPENDENCY", "reason": "DEPENDENCY_BLOCKED", "unknown_class": "DEPENDENCY_BLOCKED", "next_operation": "WAIT_FOR_PROOF_EVIDENCE", "blocked_by": ["activity-proof"]}}
+    ],
+    "edges": [
+      {"id": "edge-proof-to-publish", "from": "activity-proof", "to": "activity-publish", "relation": "PRECEDES", "historical": false, "immutable": true},
+      {"id": "edge-publish-blocked-by-proof", "from": "activity-publish", "to": "activity-proof", "relation": "BLOCKED_BY", "historical": false, "immutable": true}
+    ],
+    "history": []
+  }
+}

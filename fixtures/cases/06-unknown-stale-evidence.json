@@ -1,0 +1,21 @@
+{
+  "case_id": "unknown-stale-evidence",
+  "class": "UNKNOWN",
+  "expected_decision": "UNKNOWN",
+  "description": "The graph evidence is stale and requires a pinned refresh operation.",
+  "input": {
+    "schema": "gooo/self-improvement-frontier/input/v1",
+    "source": {"kind": "shared-ledger", "release": "v0.48.0", "immutable": true, "acceptance_required_gate": 0, "external_utility_state": "UNKNOWN"},
+    "immutable_history": true,
+    "graph_bounded": true,
+    "graph_evidence": {"state": "UNKNOWN", "unknown": {"stage": "GRAPH_INPUT", "step": "CHECK_GRAPH_FRESHNESS", "reason": "STALE_GRAPH_EVIDENCE", "unknown_class": "STALE", "next_operation": "REFRESH_PINNED_GRAPH", "blocked_by": ["graph-head"]}},
+    "claims": [
+      {"id": "claim-stale", "activity_id": "activity-stale", "state": "UNKNOWN", "historical": false, "immutable": true}
+    ],
+    "activities": [
+      {"id": "activity-stale", "claim_id": "claim-stale", "state": "UNKNOWN", "actionable": true, "historical": false, "blocked_by": [], "unknown": {"stage": "GRAPH_INPUT", "step": "CHECK_GRAPH_FRESHNESS", "reason": "STALE_GRAPH_EVIDENCE", "unknown_class": "STALE", "next_operation": "REFRESH_PINNED_GRAPH", "blocked_by": ["graph-head"]}}
+    ],
+    "edges": [],
+    "history": []
+  }
+}

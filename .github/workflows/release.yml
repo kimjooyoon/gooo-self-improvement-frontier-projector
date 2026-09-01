@@ -1,0 +1,68 @@
+name: Draft and verify release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing immutable tag to release
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Set up Go 1.27.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+          cache: true
+      - name: Run CI-only verification for release source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/ci-verify.sh
+      - name: Package release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/package-release.sh
+      - name: Create draft release from existing tag
+        id: create
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          release_json="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/releases" -f tag_name="$TAG" -f name="Gooo self-improvement frontier projector $TAG" -f body="Immutable release for the deterministic frontier projector." -F draft=true)"
+          release_id="$(jq -r '.id' <<<"$release_json")"
+          test -n "$release_id"
+          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: gh release upload "$TAG" "$RUNNER_TEMP/gooo-frontier-release-assets/frontier-projector-evidence.tar.gz" "$RUNNER_TEMP/gooo-frontier-release-assets/frontier-projector-source.tar.gz" "$RUNNER_TEMP/gooo-frontier-release-assets/release-manifest-v0.1.0.json"
+      - name: Publish draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.create.outputs.release_id }}
+        run: gh api --method PATCH "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" -F draft=false
+      - name: Verify immutable release through GitHub API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.create.outputs.release_id }}
+          AUDIT_OUTPUT: ${{ runner.temp }}/gooo-frontier-release-audit/release-audit.json
+        run: ./scripts/verify-release.sh
+      - name: Upload final release audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: gooo-self-improvement-frontier-projector-release-audit-${{ inputs.tag }}
+          path: ${{ runner.temp }}/gooo-frontier-release-audit/release-audit.json
+          if-no-files-found: error
