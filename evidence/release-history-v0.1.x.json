@@ -1,21 +1,53 @@
 {
   "schema": "gooo/self-improvement-frontier/release-history/v1",
   "mutation_policy": "NO_DELETE_NO_OVERWRITE",
-  "failed_release": {
-    "tag": "v0.1.0",
-    "release_id": 380747908,
-    "tag_object_sha": "68cd491468e509130b903a3f2008f76df315f41d",
-    "target_commit_sha": "b5a15f16c90649cccdde4f31a0a62ab9588ae924",
-    "immutable": false,
-    "state": "REFUTED",
-    "reason": "RELEASE_API_REPORTED_IMMUTABLE_FALSE",
-    "preserved": true,
-    "deletion_attempted": false,
+  "failed_releases": [
+    {
+      "tag": "v0.1.0",
+      "release_id": 380747908,
+      "tag_object_sha": "68cd491468e509130b903a3f2008f76df315f41d",
+      "target_commit_sha": "b5a15f16c90649cccdde4f31a0a62ab9588ae924",
+      "immutable": false,
+      "state": "REFUTED",
+      "reason": "RELEASE_API_REPORTED_IMMUTABLE_FALSE",
+      "preserved": true,
+      "deletion_attempted": false,
+      "assets": [
+        {"id": 539991747, "name": "frontier-projector-evidence.tar.gz", "size": 11770, "digest": "sha256:d2ed86a2cd5b9f0e5120000c1dfbf0b3c1a5bf907475d566418e0ca870a901e0"},
+        {"id": 539991746, "name": "frontier-projector-source.tar.gz", "size": 25122, "digest": "sha256:b3f68ddbc02aefddc6011dc7a5b48becc980ffcbc725d5adfa1e3c1461e2a3e2"},
+        {"id": 539991745, "name": "release-manifest-v0.1.0.json", "size": 493, "digest": "sha256:56bafd402f751a599bbdee9384322de458e284190201d084e7f357f789f5a4a1"}
+      ]
+    },
+    {
+      "tag": "v0.1.1",
+      "release_id": 380750591,
+      "tag_object_sha": "54dbfc976e10545b02763979e1669d6ade0dc7e1",
+      "target_commit_sha": "a36711d5872c74d72b8a1f2d733131323b4546a0",
+      "immutable": false,
+      "state": "REFUTED",
+      "reason": "RELEASE_API_REPORTED_IMMUTABLE_FALSE_WITH_SETTING_DISABLED",
+      "preserved": true,
+      "deletion_attempted": false,
+      "assets": [
+        {"id": 539996304, "name": "frontier-projector-evidence.tar.gz", "size": 11773, "digest": "sha256:bfc4cb3edd1b7893171efec54389a09cbe98d60c4b38b3893968dfec07f95b70"},
+        {"id": 539996321, "name": "frontier-projector-source.tar.gz", "size": 26565, "digest": "sha256:5ae24a739fa2a1f1f137cacd83a6788a182fef12e4c093f577c97bdf4f7a4a3d"},
+        {"id": 539996338, "name": "release-manifest-v0.1.1.json", "size": 493, "digest": "sha256:ffc1fb38ba0eabae6a72a6bfdddafdfbfad3259fc825981907e149fa9371dcdf"}
+      ]
+    }
+  ],
+  "successful_release": {
+    "tag": "v0.1.2",
+    "release_id": 380751639,
+    "tag_object_sha": "fbe5783ea8a6f4d20e06a236836faa8ead65f4a5",
+    "target_commit_sha": "a36711d5872c74d72b8a1f2d733131323b4546a0",
+    "immutable": true,
+    "state": "CLOSED",
+    "immutable_releases_enabled": true,
     "assets": [
-      {"id": 539991747, "name": "frontier-projector-evidence.tar.gz", "size": 11770, "digest": "sha256:d2ed86a2cd5b9f0e5120000c1dfbf0b3c1a5bf907475d566418e0ca870a901e0"},
-      {"id": 539991746, "name": "frontier-projector-source.tar.gz", "size": 25122, "digest": "sha256:b3f68ddbc02aefddc6011dc7a5b48becc980ffcbc725d5adfa1e3c1461e2a3e2"},
-      {"id": 539991745, "name": "release-manifest-v0.1.0.json", "size": 493, "digest": "sha256:56bafd402f751a599bbdee9384322de458e284190201d084e7f357f789f5a4a1"}
+      {"id": 539998313, "name": "frontier-projector-evidence.tar.gz", "size": 11777, "digest": "sha256:d5d9fb467c8660a5444c018b536d46852c0f45245d119c9172cdccb4c40a3b1e"},
+      {"id": 539998324, "name": "frontier-projector-source.tar.gz", "size": 26565, "digest": "sha256:5ae24a739fa2a1f1f137cacd83a6788a182fef12e4c093f577c97bdf4f7a4a3d"},
+      {"id": 539998343, "name": "release-manifest-v0.1.2.json", "size": 493, "digest": "sha256:1a4e761de4b5e9ac030a45445351f97493ded90f9a5457a1136f61b7e8a59f0b"}
     ]
   },
-  "correction": {"target_tag": "v0.1.1", "requires_immutable_api_true": true}
+  "correction": {"target_tag": "v0.1.2", "requires_immutable_api_true": true}
 }
